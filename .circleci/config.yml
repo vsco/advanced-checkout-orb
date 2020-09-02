@@ -1,0 +1,23 @@
+version: 2.1
+
+orbs:
+  advanced-checkout: vsco/advanced-checkout@<<pipeline.parameters.dev-orb-version>>
+  orb-tools: circleci/orb-tools@10.0
+
+# Pipeline Parameters
+parameters:
+  dev-orb-version:
+    description: >
+      The development version of the orb to test.
+      This value is automatically adjusted by the "trigger-integration-tests-workflow" job to correspond with the specific version created by the commit and should not be edited.
+      A "dev:alpha" version must exist for the initial pipeline run.
+    type: string
+    default: "dev:Alpha"
+
+workflows:
+  # Prior to producing a development orb (which requires credentials) basic validation, linting, and even unit testing can be performed.
+  # This workflow will run on every commit
+  test-pack:
+    jobs:
+      - orb-tools/lint # Lint Yaml files
+      - orb-tools/pack # Pack orb source
