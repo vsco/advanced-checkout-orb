@@ -1,13 +1,16 @@
 description: >
-  Sample example description.
+  Drop in replacement for the default CircleCi `checkout` step that takes advantage of
+  a shallow clone, skipped LFS resolution, and skipped submodule resolution.
 # Provide a use-case based example for using this orb.
 # Everything in the `usage` section will be displayed in the orb registry.
 # Comments are not retained.
 usage:
   version: 2.1
   orbs:
-    <orb-name>: <namespace>/<orb-name>@1.2.3
+    advanced-checkout: vsco/advanced-checkout@x.y.z
   workflows:
-    use-my-orb:
+    build:
       jobs:
-        - <orb-name>/<job-name>
+        - advanced-checkout/shallow-checkout:
+            fetch_lfs: true
+            fetch_submodules: true

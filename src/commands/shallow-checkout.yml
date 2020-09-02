@@ -1,0 +1,147 @@
+description: >
+  Checkout repository via git shalow clone, no submodules, no LFS resolution.
+  Extends the default CircleCi `checkout` command.
+parameters:
+  depth:
+    description: >
+      Limit shallow clone depth with a history truncated to the specified number of commits.
+      Implies a clone operation with `--single-branch`. See: https://git-scm.com/docs/git-clone
+    type: integer
+    default: 1
+  fetch_depth:
+    description: >
+      Limit fetch depth to the specified number of commits from the tip of each remote branch history.
+      Ths will deepen or shorten the history to the specified number of commits defined in `depth` above.
+      Tags for the deepened commits are not fetched. See: https://git-scm.com/docs/git-fetch
+    type: integer
+    default: 10
+  fetch_lfs:
+    description: >
+      By default (false), export GIT_LFS_SKIP_SMUDGE=1 to prevent resolution of LFS pointers.
+      When `true`, LFS pointers are resolved via the default smudge filter.
+    type: boolean
+    default: false
+  fetch_submodules:
+    description: >
+      By default (false), submodules are not initialized or fetched.
+      When `true`, included submodules are initialized and fetched.
+    type: boolean
+    default: false
+  keyscan_github:
+    description: >
+      When `true` dynamically fetch the ssh-rsa from `github.com` as opposed to using the
+      default provided key.
+    type: boolean
+    default: false
+  keyscan_bitbucket:
+    description: >
+      When `true` dynamically fetch the ssh-rsa from `bitbucket.org` as opposed to using the
+      default provided key.
+    type: boolean
+    default: false
+  debug:
+    description: >
+      When `true`, debug command logging is enabled
+    type: boolean
+    default: false
+steps:
+  - run:
+      name: shallow-checkout
+      command: |
+        #!/bin/sh
+        set -e
+
+        if [ "<< parameters.debug >>" != "true" ]
+        then
+          set -x
+        fi
+
+        # Workaround old docker images with incorrect $HOME
+        # check https://github.com/docker/docker/issues/2968 for details
+        if [ "${HOME}" = "/" ]
+        then
+          export HOME=$(getent passwd $(id -un) | cut -d: -f6)
+        fi
+
+        # setup .ssh directory / known hosts / auth
+        export SSH_CONFIG_DIR=${SSH_CONFIG_DIR:-"${HOME}/.ssh"}
+        echo Using SSH Config Dir $SSH_CONFIG_DIR
+        mkdir -p $SSH_CONFIG_DIR
+
+        if [ -x "$(command -v ssh-keyscan)" ] && ([ "<< parameters.keyscan_github >>" == "true" ] || [ "<< parameters.keyscan_bitbucket >>" == "true" ])
+        then
+          if [ "<< parameters.keyscan_github >>" == "true" ]
+          then
+            ssh-keyscan -H github.com >> $SSH_CONFIG_DIR/known_hosts
+          fi
+          if [ "<< parameters.keyscan_bitbucket >>" == "true" ]
+          then
+            ssh-keyscan -H bitbucket.org >> $SSH_CONFIG_DIR/known_hosts
+          fi
+        fi
+
+        if [ "<< parameters.keyscan_github >>" != "true" ]
+        then
+          echo 'github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==
+        ' >> $SSH_CONFIG_DIR/known_hosts
+        fi
+
+        if [ "<< parameters.keyscan_bitbucket >>" != "true" ]
+        then
+          echo 'bitbucket.org ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAubiN81eDcafrgMeLzaFPsw2kNvEcqTKl/VqLat/MaB33pZy0y3rJZtnqwR2qOOvbwKZYKiEO1O6VqNEBxKvJJelCq0dTXWT5pbO2gDXC6h6QDXCaHo6pOHGPUy+YBaGQRGuSusMEASYiWunYN0vCAI8QaXnWMXNMdFP3jHAJH0eDsoiGnLPBlBp4TNm6rYI74nMzgz3B9IikW4WVK+dc8KZJZWYjAuORU3jc1c/NPskD2ASinf8v3xnfXeukU0sJ5N6m5E8VLjObPEO+mN2t/FZTMZLiFqPWc/ALSqnMnnhwrNi2rbfg/rd/IpL8Le3pSBne8+seeFVBoGqzHM9yXw==
+        ' >> $SSH_CONFIG_DIR/known_hosts
+        fi
+
+        (umask 077; touch $SSH_CONFIG_DIR/id_rsa)
+        chmod 0600 $SSH_CONFIG_DIR/id_rsa
+        (echo $CHECKOUT_KEY > $SSH_CONFIG_DIR/id_rsa)
+
+        export GIT_SSH_COMMAND='ssh -i $SSH_CONFIG_DIR/id_rsa -o UserKnownHostsFile=$SSH_CONFIG_DIR/known_hosts'
+        # use git+ssh instead of https
+        git config --global url."ssh://git@github.com".insteadOf "https://github.com" || true
+        git config --global gc.auto 0 || true
+
+        # skip LFS smudging if enabled
+        if [ "<< parameters.fetch_lfs >>" != "true" ]
+        then
+          export GIT_LFS_SKIP_SMUDGE=1
+        fi
+
+        # setup / checkout repository
+        if [ -e $HOME/project/.git ]
+        then
+          cd $HOME/project
+          git remote set-url origin "$CIRCLE_REPOSITORY_URL" || true
+        else
+          mkdir -p $HOME/project
+          cd $HOME/project
+          git clone --depth << parameters.depth >> --shallow-submodules "$CIRCLE_REPOSITORY_URL" .
+        fi
+
+        # tag, pr, others (master / main)
+        if [ -n "$CIRCLE_TAG" ]
+        then
+          git fetch -t --depth << parameters.fetch_depth >> --no-recurse-submodules --force origin "refs/tags/${CIRCLE_TAG}"
+        elif [[ $(echo $CIRCLE_BRANCH | grep -e ^pull\/*) ]] # sh version of bash `elif [[ "$CIRCLE_BRANCH" =~ ^pull\/* ]]`
+        then
+          git fetch --depth << parameters.fetch_depth >> --no-recurse-submodules --force origin "${CIRCLE_BRANCH}/head:remotes/origin/${CIRCLE_BRANCH}"
+        else
+          git fetch --depth=<< parameters.fetch_depth >> --no-recurse-submodules --force origin "$CIRCLE_BRANCH:remotes/origin/$CIRCLE_BRANCH"
+        fi
+
+        if [ -n "$CIRCLE_TAG" ]
+        then
+          git reset --hard "$CIRCLE_SHA1"
+          git checkout -q "$CIRCLE_TAG"
+        elif [ -n "$CIRCLE_BRANCH" ] && [ "$CIRCLE_BRANCH" != 'HEAD' ]
+        then
+          git reset --hard "$CIRCLE_SHA1"
+          git checkout -q -B "$CIRCLE_BRANCH"
+        fi
+
+        git reset --hard "$CIRCLE_SHA1"
+
+        if [ "<< parameters.fetch_submodules >>" == "true" ]
+        then
+          git submodule update --init --recursive
+        fi
