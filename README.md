@@ -11,6 +11,13 @@ A CircleCI Orb to add advanced features to the default `checkout` step. Main use
 
 The main use-case for a checkout operation like this applies to repositories with large git histories as well as the execution of jobs that do not require git history or linked dependencies to peform their actions (build, and release scripts / CI operations).
 
+## Releases
+
+- All open pull requests will build/tag as: `vsco/advanced-checkout@dev:alpha`
+- All merged pull requests will build/tag as: `vsco/advanced-checkout@dev:beta`
+
+Still working through a release promotion mechanism.
+
 ## Citations
 
 This Orb has code influenced from the following sources.
