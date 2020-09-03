@@ -47,6 +47,8 @@ workflows:
           orb-name: vsco/advanced-checkout
       - advanced-shallow-checkout-alpha:
           <<: *no_main_filter
+          requires:
+            - alpha publish
       - orb-tools/publish-dev:
           <<: *main_filter
           name: beta publish
@@ -57,3 +59,5 @@ workflows:
           orb-name: vsco/advanced-checkout
       - advanced-shallow-checkout-beta:
           <<: *main_filter
+          requires:
+            - beta publish
