@@ -28,13 +28,15 @@ jobs:
     steps:
       - advanced-checkout-alpha/shallow-checkout
       - run:
-          command: find .
+          name: ensure the checkout succeeded from dev:alpha
+          command: find src/@orb.yml
   advanced-shallow-checkout-beta:
     <<: *default_job_setup
     steps:
       - advanced-checkout-beta/shallow-checkout
       - run:
-          command: find .
+          name: ensure the checkout succeeded from dev:beta
+          command: find src/@orb.yml
 
 workflows:
   build-and-test:
@@ -42,26 +44,28 @@ workflows:
       - orb-tools/lint
       - orb-tools/pack
       - orb-tools/publish-dev:
-          <<: *no_main_filter
           name: alpha publish
+          <<: *no_main_filter
           requires:
             - orb-tools/lint
             - orb-tools/pack
           alpha-version-ref: "dev:alpha"
           orb-name: vsco/advanced-checkout
       - advanced-shallow-checkout-alpha:
+          name: test published dev:alpha orb
           <<: *no_main_filter
           requires:
             - alpha publish
       - orb-tools/publish-dev:
-          <<: *main_filter
           name: beta publish
+          <<: *main_filter
           requires:
             - orb-tools/lint
             - orb-tools/pack
-          alpha-version-ref: "dev:alpha"
+          alpha-version-ref: "dev:beta"
           orb-name: vsco/advanced-checkout
       - advanced-shallow-checkout-beta:
+          name: test published dev:beta orb
           <<: *main_filter
           requires:
             - beta publish
