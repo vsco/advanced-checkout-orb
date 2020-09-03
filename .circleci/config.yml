@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   advanced-checkout: vsco/advanced-checkout@<<pipeline.parameters.dev-orb-version>>
-  orb-tools: circleci/orb-tools@10.0
+  orb-tools: circleci/orb-tools@10.0.0
 
 # Pipeline Parameters
 parameters:
@@ -13,9 +13,20 @@ parameters:
     type: string
     default: "dev:alpha"
 
+var_1: &main_branch_filter
+  filters:
+    branches:
+      ignore:
+        - main
+        - master
+
 workflows:
-  # This workflow will run on every commit
-  test-pack:
+  build-and-test:
     jobs:
-      - orb-tools/lint # Lint Yaml files
-      - orb-tools/pack # Pack orb source
+      - orb-tools/lint
+      - orb-tools/pack
+      - orb-tools/publish-dev:
+          requires:
+            - orb-tools/lint
+            - orb-tools/pack
+          orb-name: vsco/advanced-checkout
