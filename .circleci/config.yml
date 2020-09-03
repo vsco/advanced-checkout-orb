@@ -1,17 +1,9 @@
 version: 2.1
 
 orbs:
-  advanced-checkout: vsco/advanced-checkout@<<pipeline.parameters.dev-orb-version>>
+  advanced-checkout-alpha: vsco/advanced-checkout@dev:alpha
+  advanced-checkout-beta: vsco/advanced-checkout@dev:beta
   orb-tools: circleci/orb-tools@10.0.0
-
-# Pipeline Parameters
-parameters:
-  dev-orb-version:
-    description: >
-      The development version of the orb to test.
-      A "dev:alpha" version must exist for the initial pipeline run.
-    type: string
-    default: "dev:alpha"
 
 var_1: &main_branch_filter
   filters:
@@ -19,14 +11,45 @@ var_1: &main_branch_filter
       ignore:
         - main
         - master
+var_2: &default_job_setup
+  docker:
+    - image: 'circleci/circleci-cli:latest'
+  resource_class: small
 
-workflows:
-  build-and-test:
-    jobs:
+jobs:
+  build-and-test-alpha:
+    <<: *default_job_setup
+    steps:
       - orb-tools/lint
       - orb-tools/pack
       - orb-tools/publish-dev:
           requires:
             - orb-tools/lint
             - orb-tools/pack
+          alpha-version-ref: "dev:alpha"
           orb-name: vsco/advanced-checkout
+      - advanced-checkout-alpha
+      - command:
+          run: find .
+  build-and-test-beta:
+    <<: *default_job_setup
+    steps:
+      - orb-tools/lint
+      - orb-tools/pack
+      - orb-tools/publish-dev:
+          requires:
+            - orb-tools/lint
+            - orb-tools/pack
+          alpha-version-ref: "dev:beta"
+          orb-name: vsco/advanced-checkout
+      - advanced-checkout-beta
+      - command:
+          run: find .
+workflows:
+  build-and-test-alpha:
+    jobs:
+      - build-and-publish-alpha
+  build-and-test-beta:
+    jobs:
+      - build-and-publish-beta:
+          <<: *main_branch_filter
