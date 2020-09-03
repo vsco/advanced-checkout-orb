@@ -7,7 +7,7 @@ orbs:
 
 var_1: &default_job_setup
   docker:
-    - image: 'circleci/circleci-cli:latest'
+    - image: 'cimg/base:2020.01'
   resource_class: small
 
 var_2: &no_main_filter
@@ -49,7 +49,7 @@ workflows:
           requires:
             - orb-tools/lint
             - orb-tools/pack
-          alpha-version-ref: "dev:alpha"
+          alpha-version-ref: 'dev:alpha'
           orb-name: vsco/advanced-checkout
       - advanced-shallow-checkout-alpha:
           name: test published dev:alpha orb
@@ -62,7 +62,7 @@ workflows:
           requires:
             - orb-tools/lint
             - orb-tools/pack
-          alpha-version-ref: "dev:beta"
+          alpha-version-ref: 'dev:beta'
           orb-name: vsco/advanced-checkout
       - advanced-shallow-checkout-beta:
           name: test published dev:beta orb
