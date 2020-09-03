@@ -27,10 +27,14 @@ jobs:
     <<: *default_job_setup
     steps:
       - advanced-checkout-alpha/shallow-checkout
+      - run:
+          command: find .
   advanced-shallow-checkout-beta:
     <<: *default_job_setup
     steps:
       - advanced-checkout-beta/shallow-checkout
+      - run:
+          command: find .
 
 workflows:
   build-and-test:
