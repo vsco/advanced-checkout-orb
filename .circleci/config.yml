@@ -5,13 +5,7 @@ orbs:
   advanced-checkout-beta: vsco/advanced-checkout@dev:beta
   orb-tools: circleci/orb-tools@10.0.0
 
-var_1: &main_branch_filter
-  filters:
-    branches:
-      ignore:
-        - main
-        - master
-var_2: &default_job_setup
+var_1: &default_job_setup
   docker:
     - image: 'circleci/circleci-cli:latest'
   resource_class: small
@@ -48,8 +42,16 @@ jobs:
 workflows:
   build-and-test-alpha:
     jobs:
-      - build-and-publish-alpha
+      - build-and-test-alpha:
+          filters:
+            branches:
+              ignore:
+                - main
+                - master
   build-and-test-beta:
     jobs:
-      - build-and-publish-beta:
-          <<: *main_branch_filter
+      - build-and-test-beta:
+          filters:
+            branches:
+              only:
+                - main
