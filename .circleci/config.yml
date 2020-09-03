@@ -10,48 +10,40 @@ var_1: &default_job_setup
     - image: 'circleci/circleci-cli:latest'
   resource_class: small
 
-jobs:
-  build-and-test-alpha:
-    <<: *default_job_setup
-    steps:
+var_2: &no_main_filter
+  filters:
+    branches:
+      ignore:
+        - main
+
+var_3: &main_filter
+  filters:
+    branches:
+      only:
+        - main
+
+workflows:
+  build-and-test:
+    jobs:
       - orb-tools/lint
       - orb-tools/pack
       - orb-tools/publish-dev:
+          <<: *no_main_filter
+          name: alpha publish
           requires:
             - orb-tools/lint
             - orb-tools/pack
           alpha-version-ref: "dev:alpha"
           orb-name: vsco/advanced-checkout
-      - advanced-checkout-alpha
-      - command:
-          run: find .
-  build-and-test-beta:
-    <<: *default_job_setup
-    steps:
-      - orb-tools/lint
-      - orb-tools/pack
+      - advanced-checkout-alpha/shallow-checkout:
+          <<: *no_main_filter
       - orb-tools/publish-dev:
+          <<: *main_filter
+          name: beta publish
           requires:
             - orb-tools/lint
             - orb-tools/pack
-          alpha-version-ref: "dev:beta"
+          alpha-version-ref: "dev:alpha"
           orb-name: vsco/advanced-checkout
-      - advanced-checkout-beta
-      - command:
-          run: find .
-workflows:
-  build-and-test-alpha:
-    jobs:
-      - build-and-test-alpha:
-          filters:
-            branches:
-              ignore:
-                - main
-                - master
-  build-and-test-beta:
-    jobs:
-      - build-and-test-beta:
-          filters:
-            branches:
-              only:
-                - main
+      - advanced-checkout-beta/shallow-checkout:
+          <<: *main_filter

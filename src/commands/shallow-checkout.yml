@@ -44,6 +44,9 @@ parameters:
       When `true`, debug command logging is enabled
     type: boolean
     default: false
+  version:
+    type: string
+    default: "0.0.0"
 steps:
   - run:
       name: shallow-checkout
@@ -55,6 +58,8 @@ steps:
         then
           set -x
         fi
+
+        echo "running for << parameters.version >>"
 
         # Workaround old docker images with incorrect $HOME
         # check https://github.com/docker/docker/issues/2968 for details
