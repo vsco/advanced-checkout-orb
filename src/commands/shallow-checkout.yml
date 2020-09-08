@@ -120,6 +120,10 @@ steps:
         else
           mkdir -p << parameters.path >>
           cd << parameters.path >>
+          if [ "<< parameters.debug >>" != "true" ]
+          then
+            find .
+          fi
           git clone --depth << parameters.depth >> --shallow-submodules "$CIRCLE_REPOSITORY_URL" .
         fi
 
