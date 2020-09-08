@@ -15,6 +15,11 @@ parameters:
       Tags for the deepened commits are not fetched. See: https://git-scm.com/docs/git-fetch
     type: integer
     default: 10
+  path:
+    description: >
+      By default, checkout path is ~/project, this can be overrridden.
+    type: string
+    default: ~/project
   fetch_lfs:
     description: >
       By default (false), export GIT_LFS_SKIP_SMUDGE=1 to prevent resolution of LFS pointers.
@@ -51,7 +56,7 @@ steps:
         #!/bin/sh
         set -e
 
-        if [ "<< parameters.debug >>" != "true" ]
+        if [ "<< parameters.debug >>" == "true" ]
         then
           set -x
         fi
@@ -108,13 +113,13 @@ steps:
         fi
 
         # setup / checkout repository
-        if [ -e $HOME/project/.git ]
+        if [ -e "<< parameters.path >>/.git" ]
         then
-          cd $HOME/project
+          cd "<< parameters.path >>"
           git remote set-url origin "$CIRCLE_REPOSITORY_URL" || true
         else
-          mkdir -p $HOME/project
-          cd $HOME/project
+          mkdir -p "<< parameters.path >>"
+          cd "<< parameters.path >>"
           git clone --depth << parameters.depth >> --shallow-submodules "$CIRCLE_REPOSITORY_URL" .
         fi
 
