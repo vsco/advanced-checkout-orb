@@ -1,7 +1,6 @@
 version: 2.1
 
 orbs:
-  advanced-checkout-alpha: vsco/advanced-checkout@dev:alpha
   advanced-checkout-beta: vsco/advanced-checkout@dev:beta
   orb-tools: circleci/orb-tools@10.0.0
 
@@ -23,21 +22,6 @@ var_3: &main_filter
         - main
 
 jobs:
-  advanced-shallow-checkout-alpha:
-    <<: *default_job_setup
-    steps:
-      - advanced-checkout-alpha/shallow-checkout
-      - run:
-          name: ensure the checkout succeeded from dev:alpha
-          command: find src/@orb.yml
-  advanced-shallow-checkout-alpha-custom-path:
-    <<: *default_job_setup
-    steps:
-      - advanced-checkout-alpha/shallow-checkout:
-          path: ~/foo/bar
-      - run:
-          name: ensure the checkout succeeded from dev:alpha
-          command: find ~/foo/bar/src/@orb.yml
   advanced-shallow-checkout-beta:
     <<: *default_job_setup
     steps:
@@ -59,16 +43,6 @@ workflows:
             - orb-tools/pack
           alpha-version-ref: 'dev:alpha'
           orb-name: vsco/advanced-checkout
-      - advanced-shallow-checkout-alpha:
-          name: test published dev:alpha orb
-          <<: *no_main_filter
-          requires:
-            - alpha publish
-      - advanced-shallow-checkout-alpha-custom-path:
-          name: test published dev:alpha orb w/ custom path
-          <<: *no_main_filter
-          requires:
-            - alpha publish
       - orb-tools/publish-dev:
           name: beta publish
           <<: *main_filter
