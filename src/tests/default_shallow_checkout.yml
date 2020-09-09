@@ -1,0 +1,11 @@
+version: 2.1
+
+orbs:
+  circleci-cli: circleci/circleci-cli@0.1.8
+
+jobs:
+  test:
+    executor: cli/default
+    steps:
+      - advanced-checkout/shallow-checkout
+

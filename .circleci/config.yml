@@ -4,34 +4,20 @@ orbs:
   advanced-checkout-beta: vsco/advanced-checkout@dev:beta
   orb-tools: circleci/orb-tools@10.0.0
 
-var_1: &default_job_setup
-  docker:
-    - image: 'cimg/base:2020.01'
-  resource_class: small
-
-var_2: &no_main_filter
+var_1: &no_main_filter
   filters:
     branches:
       ignore:
         - main
 
-var_3: &main_filter
+var_2: &main_filter
   filters:
     branches:
       only:
         - main
 
-jobs:
-  advanced-shallow-checkout-beta:
-    <<: *default_job_setup
-    steps:
-      - advanced-checkout-beta/shallow-checkout
-      - run:
-          name: ensure the checkout succeeded from dev:beta
-          command: find src/@orb.yml
-
 workflows:
-  build-and-test:
+  build:
     jobs:
       - orb-tools/lint
       - orb-tools/pack
@@ -51,8 +37,16 @@ workflows:
             - orb-tools/pack
           alpha-version-ref: 'dev:beta'
           orb-name: vsco/advanced-checkout
-      - advanced-shallow-checkout-beta:
-          name: test published dev:beta orb
-          <<: *main_filter
+  integration-tests:
+    jobs:
+      - orb-tools/pack:
+          name: pack-dev
+      - orb-tools/test-in-builds:
+          name: test-dev
+          attach-workspace: true
+          orb-name: advanced-checkout
+          test-steps:
+            - test/local-test-build:
+                path: tests/default_shallow_checkout.yml
           requires:
-            - beta publish
+            - pack-dev
