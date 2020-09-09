@@ -17,10 +17,6 @@ orbs:
               but it will have the orb being tested added as a local orb,
               with the orb name that is passed into the test-in-builds job this belongs to.
             type: string
-          should-fail:
-            description: If set to false (default) this job will fail if the local test job fails. If set to true, this job will fail if the local test job does not fail.
-            type: boolean
-            default: false
           external-check-steps:
             description: >
               Checks you want to run that look at the contents of local_build_output.txt.
@@ -44,7 +40,10 @@ orbs:
               command: |
                 # Cannot access "~/.ssh" from working directory.
                 cp ~/.ssh/id_rsa ./id_rsa
-                '<<# parameters.should-fail >>! <</ parameters.should-fail>>circleci local execute -c config.yml | tee local_build_output.txt /dev/stderr | tail -n 1 | grep "Success"'
+                circleci local execute --checkout-key ./id_rsa -c config.yml | \
+                  tee local_build_output.txt /dev/stderr | \
+                  tail -n 1 | \
+                  grep "Success"
           - << parameters.external-check-steps >>
 
 var_1: &no_main_filter
