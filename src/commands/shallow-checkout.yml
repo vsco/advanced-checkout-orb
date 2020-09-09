@@ -17,9 +17,9 @@ parameters:
     default: 10
   path:
     description: >
-      By default, checkout path is ~/project, this can be overrridden.
+      By default, checkout path is $HOME/project, this can be overrridden.
     type: string
-    default: ~/project
+    default: $HOME/project
   fetch_lfs:
     description: >
       By default (false), export GIT_LFS_SKIP_SMUDGE=1 to prevent resolution of LFS pointers.
