@@ -47,6 +47,10 @@ workflows:
           orb-name: advanced-checkout
           test-steps:
             - orb-tools/local-test-build:
-                test-config-location: src/tests/default_shallow_checkout.yml
+                test-config-location: src/tests/shallow_checkout_default.yml
+            - orb-tools/local-test-build:
+                test-config-location: src/tests/shallow_checkout_full.yml
+            - orb-tools/local-test-build:
+                test-config-location: src/tests/shallow_checkout_working_path.yml
           requires:
             - pack-dev
