@@ -112,6 +112,18 @@ steps:
           export GIT_LFS_SKIP_SMUDGE=1
         fi
 
+        # subtree / working directory fix
+        WORK_DIR=$(realpath "$CIRCLE_WORKING_DIRECTORY")
+        CLONE_DIR=$(realpath "<< parameters.path >>")
+        NEED_WORKDIR=false
+
+        case "${WORK_DIR}" in
+          *${CLONE_DIR}*)
+            NEED_WORKDIR=true
+            rm -r ${CLONE_DIR}
+            ;;
+        esac
+
         # setup / checkout repository
         if [ -e "<< parameters.path >>/.git" ]
         then
@@ -121,6 +133,11 @@ steps:
           mkdir -p "<< parameters.path >>"
           cd "<< parameters.path >>"
           git clone --depth << parameters.depth >> --shallow-submodules "$CIRCLE_REPOSITORY_URL" .
+        fi
+
+        if [ "$NEED_WORKDIR" == "true" ]
+        then
+          mkdir -p $CIRCLE_WORKING_DIRECTORY
         fi
 
         # tag, pr, others (master / main)
