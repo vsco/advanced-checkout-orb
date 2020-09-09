@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   advanced-checkout-beta: vsco/advanced-checkout@dev:beta
-  orb-tools: circleci/orb-tools@10.0.0
+  orb-tools: circleci/orb-tools@9.3.1
 
 var_1: &no_main_filter
   filters:
