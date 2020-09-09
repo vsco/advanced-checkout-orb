@@ -1,2 +1,9 @@
 # orb.yml is "packed" from source, and not published directly from the repository.
 orb.yml
+
+# testing ignores
+config.yml
+id_rsa
+local_build_output.txt
+tmp-config-src/
+uncompiled-config.yml

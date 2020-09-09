@@ -94,5 +94,7 @@ workflows:
                 test-config-location: src/tests/shallow_checkout_full.yml
             - test/local-test-build:
                 test-config-location: src/tests/shallow_checkout_working_path.yml
+            - test/local-test-build:
+                test-config-location: src/tests/shallow_checkout_working_path_android.yml
           requires:
             - pack-dev
