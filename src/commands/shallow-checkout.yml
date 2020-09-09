@@ -113,8 +113,8 @@ steps:
         fi
 
         # subtree / working directory fix
-        WORK_DIR=$(realpath "$CIRCLE_WORKING_DIRECTORY")
-        CLONE_DIR=$(realpath "<< parameters.path >>")
+        WORK_DIR=$(realpath $CIRCLE_WORKING_DIRECTORY)
+        CLONE_DIR=$(realpath << parameters.path >>)
         NEED_WORKDIR=false
 
         case "${WORK_DIR}" in
