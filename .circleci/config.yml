@@ -46,17 +46,26 @@ orbs:
                   grep "Success"
           - << parameters.external-check-steps >>
 
-var_1: &no_main_filter
+var_1: &orb_name vsco/advanced-checkout
+
+var_2: &no_main_filter
   filters:
     branches:
       ignore:
         - main
 
-var_2: &main_filter
+var_3: &main_filter
   filters:
     branches:
       only:
         - main
+
+var_4: &release_filter
+  filters:
+    branches:
+      ignore: /.*/
+    tags:
+      only: /^(major|minor|patch)-release-v\d+\.\d+\.\d+$/
 
 workflows:
   build:
@@ -64,37 +73,68 @@ workflows:
       - orb-tools/lint
       - orb-tools/pack
       - orb-tools/publish-dev:
-          name: alpha publish
+          name: publish-alpha
           <<: *no_main_filter
           requires:
             - orb-tools/lint
             - orb-tools/pack
           alpha-version-ref: 'dev:alpha'
-          orb-name: vsco/advanced-checkout
+          orb-name: *orb_name
+          publish-sha-version: false
       - orb-tools/publish-dev:
-          name: beta publish
+          name: publish-beta
           <<: *main_filter
           requires:
             - orb-tools/lint
             - orb-tools/pack
           alpha-version-ref: 'dev:beta'
-          orb-name: vsco/advanced-checkout
+          orb-name: *orb_name
+          publish-sha-version: true
+  # once a PR has been merged and dev:beta has been made and tagged, publish that sha
+  # as a release version
+  release:
+    jobs:
+      - orb-tools/pack:
+          name: pack-release
+          <<: *release_filter
+      - orb-tools/dev-promote-prod-from-git-tag:
+          name: release-by-tag
+          <<: *release_filter
+          requires:
+            - pack-release
+          add-pr-comment: false
+          orb-name: *orb_name
+          perform-branch-check: false
   integration-tests:
     jobs:
       - orb-tools/pack:
           name: pack-dev
+          <<: *no_main_filter
       - orb-tools/test-in-builds:
-          name: test-dev
+          name: test-dev default
+          <<: *no_main_filter
           attach-workspace: true
           orb-name: advanced-checkout
           test-steps:
             - test/local-test-build:
-                test-config-location: src/tests/shallow_checkout_default.yml
+                test-config-location: src/tests/default_shallow_checkout.yml
             - test/local-test-build:
-                test-config-location: src/tests/shallow_checkout_full.yml
+                test-config-location: src/tests/default_shallow_checkout_full.yml
             - test/local-test-build:
-                test-config-location: src/tests/shallow_checkout_working_path.yml
+                test-config-location: src/tests/default_shallow_checkout_working_path.yml
+          requires:
+            - pack-dev
+      - orb-tools/test-in-builds:
+          name: test-dev android
+          <<: *no_main_filter
+          attach-workspace: true
+          orb-name: advanced-checkout
+          test-steps:
             - test/local-test-build:
-                test-config-location: src/tests/shallow_checkout_working_path_android.yml
+                test-config-location: src/tests/android_shallow_checkout.yml
+            - test/local-test-build:
+                test-config-location: src/tests/android_shallow_checkout_full.yml
+            - test/local-test-build:
+                test-config-location: src/tests/android_shallow_checkout_working_path.yml
           requires:
             - pack-dev
