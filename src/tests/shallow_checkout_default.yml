@@ -1,0 +1,13 @@
+version: 2.1
+
+orbs:
+  cli: circleci/circleci-cli@0.1.8
+
+# ensure default shallow-checkout works
+jobs:
+  build:
+    executor: cli/default
+    steps:
+      - advanced-checkout/shallow-checkout:
+          debug: true
+
