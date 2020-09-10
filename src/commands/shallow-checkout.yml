@@ -112,24 +112,23 @@ steps:
           export GIT_LFS_SKIP_SMUDGE=1
         fi
 
-        # tilde processing is inconsistent across platforms, just resolve it
-        CHECKOUT_PATH=$(echo "<< parameters.path >>" | sed "s/\~/\${HOME}/g")
-
         # subtree / working directory fix
-        if [ "$CHECKOUT_PATH" != "$CIRCLE_WORKING_DIRECTORY" ]
+        if [ "<< parameters.path >>" != "$CIRCLE_WORKING_DIRECTORY" ]
         then
           NEED_WORKDIR=false
-          rm -r "$CHECKOUT_PATH" || true
+          rm -r "<< parameters.path >>" || true
         fi
+
+        set -x
 
         # setup / checkout repository
         if [ -e "${CHECKOUT_PATH}/.git" ]
         then
-          cd "$CHECKOUT_PATH"
+          cd "<< parameters.path >>"
           git remote set-url origin "$CIRCLE_REPOSITORY_URL" || true
         else
-          mkdir -p "$CHECKOUT_PATH"
-          cd "$CHECKOUT_PATH"
+          mkdir -p "<< parameters.path >>"
+          cd "<< parameters.path >>"
           git clone --depth << parameters.depth >> --shallow-submodules "$CIRCLE_REPOSITORY_URL" .
         fi
 
@@ -137,6 +136,8 @@ steps:
         then
           mkdir -p $CIRCLE_WORKING_DIRECTORY
         fi
+
+        set +x
 
         # tag, pr, others (master / main)
         if [ -n "$CIRCLE_TAG" ]
