@@ -113,7 +113,7 @@ steps:
         fi
 
         # tilde processing is inconsistent across platforms, just resolve it
-        CHECKOUT_PATH=$(echo "<< parameters.path >>" | sed "s/\~/\$HOME/g")
+        CHECKOUT_PATH=$(echo "<< parameters.path >>" | sed "s/\~/\${HOME}/g")
 
         # subtree / working directory fix
         if [ "$CHECKOUT_PATH" != "$CIRCLE_WORKING_DIRECTORY" ]
