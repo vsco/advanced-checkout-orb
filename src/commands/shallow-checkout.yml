@@ -123,6 +123,7 @@ steps:
           fi
 
           eval CHECKOUT_PATH="<< parameters.path >>"
+          rm -r $CHECKOUT_PATH || true
 
           if [ "<< parameters.debug >>" == "true" ]
           then
@@ -140,6 +141,11 @@ steps:
           mkdir -p "${CHECKOUT_PATH}"
           cd "${CHECKOUT_PATH}"
           git clone --depth << parameters.depth >> --shallow-submodules "$CIRCLE_REPOSITORY_URL" .
+        fi
+
+        if [ "<< parameters.path >>" != "" ]
+        then
+          mkdir -p $CIRCLE_WORKING_DIRECTORY
         fi
 
         # tag, pr, others (master / main)
