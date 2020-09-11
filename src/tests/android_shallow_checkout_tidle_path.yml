@@ -9,15 +9,15 @@ executors:
       - image: circleci/android:api-29-ndk@sha256:d2d054238e1a7e9ab30dd9f6b44a06af8d41836e053ffc40707d75ba50bbe0bf
     resource_class: small
 
-# ensure we can specify a working directory that is a defined sub-path of the
-# clone path
+# ensure we can specify a tilde based working directory that is a defined
+# sub-path of the clone path
 jobs:
   build:
     executor: android
-    working_directory: /home/circleci/foo/bar/src
+    working_directory: ~/foo/bar/baz
     steps:
-      - cli/install
       - advanced-checkout/shallow-checkout:
           debug: true
-          path: /home/circleci/foo/bar
+          path: ~/foo/bar
+      - run: find ~/foo/bar | grep baz
 

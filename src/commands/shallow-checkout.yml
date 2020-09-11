@@ -17,9 +17,9 @@ parameters:
     default: 10
   path:
     description: >
-      By default, checkout path is $HOME/project, this can be overrridden.
+      By default, checkout path is ~/project, this can be overrridden.
     type: string
-    default: $HOME/project
+    default: ~/project
   fetch_lfs:
     description: >
       By default (false), export GIT_LFS_SKIP_SMUDGE=1 to prevent resolution of LFS pointers.
@@ -112,15 +112,29 @@ steps:
           export GIT_LFS_SKIP_SMUDGE=1
         fi
 
-        # setup / checkout repository
-        if [ -e "<< parameters.path >>/.git" ]
+        # if path is set, use it, otherwise use a default
+        CHECKOUT_PATH="${HOME}/project"
+        if [ "<< parameters.path >>" != "" ]
         then
-          cd "<< parameters.path >>"
+          eval CHECKOUT_PATH="<< parameters.path >>"
+          rm -r $CHECKOUT_PATH || true
+        fi
+
+        # setup / checkout repository
+        if [ -e "${CHECKOUT_PATH}/.git" ]
+        then
+          cd "${CHECKOUT_PATH}"
           git remote set-url origin "$CIRCLE_REPOSITORY_URL" || true
         else
-          mkdir -p "<< parameters.path >>"
-          cd "<< parameters.path >>"
+          mkdir -p "${CHECKOUT_PATH}"
+          cd "${CHECKOUT_PATH}"
           git clone --depth << parameters.depth >> --shallow-submodules "$CIRCLE_REPOSITORY_URL" .
+        fi
+
+        if [ "<< parameters.path >>" != "" ]
+        then
+          eval CIRCLE_WORKING_DIRECTORY=$CIRCLE_WORKING_DIRECTORY
+          mkdir -p $CIRCLE_WORKING_DIRECTORY
         fi
 
         # tag, pr, others (master / main)

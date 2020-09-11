@@ -121,6 +121,8 @@ workflows:
             - test/local-test-build:
                 test-config-location: src/tests/default_shallow_checkout_full.yml
             - test/local-test-build:
+                test-config-location: src/tests/default_shallow_checkout_tidle_path.yml
+            - test/local-test-build:
                 test-config-location: src/tests/default_shallow_checkout_working_path.yml
           requires:
             - pack-dev
@@ -134,6 +136,8 @@ workflows:
                 test-config-location: src/tests/android_shallow_checkout.yml
             - test/local-test-build:
                 test-config-location: src/tests/android_shallow_checkout_full.yml
+            - test/local-test-build:
+                test-config-location: src/tests/android_shallow_checkout_tidle_path.yml
             - test/local-test-build:
                 test-config-location: src/tests/android_shallow_checkout_working_path.yml
           requires:
