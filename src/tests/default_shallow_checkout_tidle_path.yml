@@ -3,8 +3,8 @@ version: 2.1
 orbs:
   cli: circleci/circleci-cli@0.1.8
 
-# ensure we can specify a working directory that is a defined sub-path of the
-# clone path
+# ensure we can specify a tilde based working directory that is a defined
+# sub-path of the clone path
 jobs:
   build:
     executor: cli/default

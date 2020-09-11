@@ -116,20 +116,8 @@ steps:
         CHECKOUT_PATH="${HOME}/project"
         if [ "<< parameters.path >>" != "" ]
         then
-          if [ "<< parameters.debug >>" == "true" ]
-          then
-            echo "PRE EVAL PATH: << parameters.path >>"
-            echo "PRE EVAL CHECKOUT PATH: ${CHECKOUT_PATH}"
-          fi
-
           eval CHECKOUT_PATH="<< parameters.path >>"
           rm -r $CHECKOUT_PATH || true
-
-          if [ "<< parameters.debug >>" == "true" ]
-          then
-            echo "POST EVAL PATH: << parameters.path >>"
-            echo "POST EVAL CHECKOUT PATH: ${CHECKOUT_PATH}"
-          fi
         fi
 
         # setup / checkout repository

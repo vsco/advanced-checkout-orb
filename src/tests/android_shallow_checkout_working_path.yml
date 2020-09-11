@@ -14,10 +14,10 @@ executors:
 jobs:
   build:
     executor: android
-    working_directory: ~/foo/bar/src
+    working_directory: /home/circleci/foo/bar/src
     steps:
       - cli/install
       - advanced-checkout/shallow-checkout:
           debug: true
-          path: ~/foo/bar
+          path: /home/circleci/foo/bar
 
