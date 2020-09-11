@@ -133,6 +133,7 @@ steps:
 
         if [ "<< parameters.path >>" != "" ]
         then
+          eval CIRCLE_WORKING_DIRECTORY=$CIRCLE_WORKING_DIRECTORY
           mkdir -p $CIRCLE_WORKING_DIRECTORY
         fi
 
