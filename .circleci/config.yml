@@ -138,8 +138,8 @@ workflows:
                 test-config-location: src/tests/android_shallow_checkout.yml
             - test/local-test-build:
                 test-config-location: src/tests/android_shallow_checkout_full.yml
-            - test/local-test-build:
-                test-config-location: src/tests/android_shallow_checkout_home_path.yml
+            # - test/local-test-build:
+            #     test-config-location: src/tests/android_shallow_checkout_home_path.yml
             - test/local-test-build:
                 test-config-location: src/tests/android_shallow_checkout_tidle_path.yml
             - test/local-test-build:
