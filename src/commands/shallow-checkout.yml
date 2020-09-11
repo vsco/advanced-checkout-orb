@@ -112,14 +112,33 @@ steps:
           export GIT_LFS_SKIP_SMUDGE=1
         fi
 
-        # setup / checkout repository
-        if [ -e "<< parameters.path >>/.git" ]
+        # if path is set, use it, otherwise use a default
+        CHECKOUT_PATH="${HOME}/project"
+        if [ "<< parameters.path >>" != "" ]
         then
-          cd "<< parameters.path >>"
+          if [ "<< parameters.debug >>" == "true" ]
+          then
+            echo "PRE EVAL PATH: << parameters.path >>"
+            echo "PRE EVAL CHECKOUT PATH: ${CHECKOUT_PATH}"
+          fi
+
+          eval CHECKOUT_PATH="<< parameters.path >>"
+
+          if [ "<< parameters.debug >>" == "true" ]
+          then
+            echo "POST EVAL PATH: << parameters.path >>"
+            echo "POST EVAL CHECKOUT PATH: ${CHECKOUT_PATH}"
+          fi
+        fi
+
+        # setup / checkout repository
+        if [ -e "${CHECKOUT_PATH}/.git" ]
+        then
+          cd "${CHECKOUT_PATH}"
           git remote set-url origin "$CIRCLE_REPOSITORY_URL" || true
         else
-          mkdir -p "<< parameters.path >>"
-          cd "<< parameters.path >>"
+          mkdir -p "${CHECKOUT_PATH}"
+          cd "${CHECKOUT_PATH}"
           git clone --depth << parameters.depth >> --shallow-submodules "$CIRCLE_REPOSITORY_URL" .
         fi
 
