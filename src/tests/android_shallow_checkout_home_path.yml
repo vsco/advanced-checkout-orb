@@ -1,0 +1,22 @@
+version: 2.1
+
+orbs:
+  cli: circleci/circleci-cli@0.1.8
+
+executors:
+  android:
+    docker:
+      - image: circleci/android:api-29-ndk@sha256:d2d054238e1a7e9ab30dd9f6b44a06af8d41836e053ffc40707d75ba50bbe0bf
+    resource_class: small
+
+# ensure we can specify a $HOME based directory that is a defined sub-path of
+# the clone path
+jobs:
+  build:
+    executor: android
+    working_directory: $HOME/foo/bar/src
+    steps:
+      - advanced-checkout/shallow-checkout:
+          debug: true
+          path: $HOME/foo/bar
+
