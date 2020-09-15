@@ -1,5 +1,7 @@
 # advanced-checkout-orb
 
+[![CircleCI Status](https://circleci.com/gh/vsco/advanced-checkout-orb.svg?style=shield)](https://app.circleci.com/pipelines/github/vsco/advanced-checkout-orb?branch=main)&nbsp;[![CircleCI Orb Version](https://img.shields.io/badge/endpoint.svg?url=https://badges.circleci.io/orb/vsco/advanced-checkout)](https://circleci.com/orbs/registry/orb/vsco/advanced-checkout)
+
 ## Description
 
 A CircleCI Orb to add advanced features to replace the default `checkout` step.
