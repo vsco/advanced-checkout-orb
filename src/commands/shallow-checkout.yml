@@ -164,3 +164,9 @@ steps:
         then
           git submodule update --init --recursive
         fi
+
+        # explicilty pull LFS if needed
+        if [ "<< parameters.fetch_lfs >>" == "true" ]
+        then
+          git lfs pull
+        fi
